@@ -21,20 +21,26 @@ BackEnd - https://github.com/deepak252/Bus-Tracking-Backend
 - The app retrieves and displays a list of available bus routes and associated stops from the backend database.
 - Users can search for specific routes, view route details, and select their desired bus stops.
 
-**5. Estimated Arrival Times:**
+**5. Favorite Bus Stops:**
+- Mark frequently used stops as favorites for quick access across the app.
+
+**6. Estimated Arrival Times:**
 - The app calculates and displays estimated arrival times for buses at designated stops.
 - Users can view the estimated arrival times for their selected bus stops to plan their journeys accordingly.
 
-**6. Bus Schedule and Timetable:**
+**7. Bus Schedule and Timetable:**
 - The app retrieves the latest bus schedules and timetables from the backend system.
 - Users can access the schedule information to check the departure and arrival times of buses at different stops.
   
-**7. User Profile Management:**
+**8. User Profile Management:**
 - Users can check their profiles within the app.
+- Favorited bus stops are listed on the profile screen for quick access.
   
 **9. Interactive Maps:**
 - The app utilizes interactive maps to display bus routes, stops, and real-time bus locations.
 - Users can zoom in/out, pan the map, and interact with the interface to visualize bus information and plan their trips effectively.
+- Stop details screens show a map pinpointing the selected stop for quick reference.
+- The default route polyline is drawn using the real-world coordinates for each UNITE​N campus stop.
 
 <br>
 
