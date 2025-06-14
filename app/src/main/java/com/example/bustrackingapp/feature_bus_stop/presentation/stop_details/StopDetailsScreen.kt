@@ -9,8 +9,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -33,6 +39,14 @@ import com.example.bustrackingapp.feature_bus_stop.domain.model.BusStopWithRoute
 import com.example.bustrackingapp.ui.theme.NavyBlue300
 import com.example.bustrackingapp.ui.theme.Red400
 import com.example.bustrackingapp.ui.theme.White
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -59,12 +73,22 @@ fun StopDetailsScreen(
 
     Scaffold(
         topBar = {
+            val isFav = stopDetailsViewModel.uiState.isFavorite
             TopAppBar(
                 title = {
                     Text(
                         "Stop Details",
                         style = MaterialTheme.typography.headlineSmall
                     )
+                },
+                actions = {
+                    IconButton(onClick = { stopDetailsViewModel.toggleFavorite() }) {
+                        Icon(
+                            imageVector = if (isFav) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = if (isFav) "Unfavorite stop" else "Favorite stop",
+                            tint = if (isFav) Color.Red else MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 }
             )
         },
@@ -101,6 +125,7 @@ fun StopDetailsScreen(
         }
     }
 }
+
 
 @Composable
 fun BusStopDetailsContainer(
@@ -142,11 +167,20 @@ fun BusStopDetailsContainer(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                "Routes : ",
+                "Location:",
                 style = MaterialTheme.typography.titleSmall
             )
-            Column() {
-                busStop.routes.forEach { route->
+            Spacer(modifier = Modifier.height(6.dp))
+            StopLocationMap(busStop)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                "Routes:",
+                style = MaterialTheme.typography.titleSmall
+            )
+            Column {
+                busStop.routes.forEach { route ->
                     BusRouteTile(
                         routeNo = route.routeNo,
                         routeName = route.name,
@@ -162,4 +196,37 @@ fun BusStopDetailsContainer(
         }
     }
 
+}
+
+@Composable
+private fun StopLocationMap(busStop: BusStopWithRoutes) {
+    val latLng = busStop.correctedLatLng()
+    val cameraPositionState = rememberCameraPositionState()
+    LaunchedEffect(Unit) {
+        cameraPositionState.move(
+            CameraUpdateFactory.newLatLngZoom(
+                latLng,
+                16f
+            )
+        )
+    }
+    GoogleMap(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        cameraPositionState = cameraPositionState,
+        properties = MapProperties(),
+        uiSettings = MapUiSettings(zoomControlsEnabled = true)
+    ) {
+        Marker(
+            state = MarkerState(position = latLng),
+            title = busStop.name
+        )
+    }
+}
+
+private fun BusStopWithRoutes.correctedLatLng(): LatLng {
+    val lat = location.lat
+    val lng = location.lng
+    return if (lat !in -90.0..90.0) LatLng(lng, lat) else LatLng(lat, lng)
 }
