@@ -19,45 +19,70 @@ class UserPrefsRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) : UserPrefsRepository {
     private val logger = LoggerUtil(c = "UserPrefsRepositoryImpl")
-    private object PreferencesKey{
-        val userToken  = stringPreferencesKey("user_token")
-        val userType = stringPreferencesKey("user_type")
+
+    private object PreferencesKey {
+        val userToken     = stringPreferencesKey("user_token")
+        val userType      = stringPreferencesKey("user_type")
+        val favoriteStops = stringPreferencesKey("favorite_stops")  // <— new
     }
 
     override suspend fun updateToken(token: String?) {
         logger.info("$token", "updateToken")
-
-        dataStore.edit { preferences ->
-            preferences[PreferencesKey.userToken] = token?:""
+        dataStore.edit { prefs ->
+            prefs[PreferencesKey.userToken] = token ?: ""
         }
     }
 
-    override val getToken : Flow<String> = dataStore.data
-        .catch {
-            if(this is Exception){
-                logger.info("${this.message}", "getToken")
+    override val getToken: Flow<String> = dataStore.data
+        .catch { e ->
+            if (e is Exception) {
+                logger.info(e.message ?: "unknown", "getToken")
                 emit(emptyPreferences())
             }
-        }.map { preference ->
-            preference[PreferencesKey.userToken] ?: ""
         }
-
+        .map { prefs ->
+            prefs[PreferencesKey.userToken] ?: ""
+        }
 
     override suspend fun updateUserType(userType: String?) {
-        logger.info("$userType", "userType")
-
-        dataStore.edit { preferences ->
-            preferences[PreferencesKey.userType] = userType?:Constants.UserType.passenger
+        logger.info("$userType", "updateUserType")
+        dataStore.edit { prefs ->
+            prefs[PreferencesKey.userType] = userType ?: Constants.UserType.passenger
         }
     }
 
-    override val getUserType : Flow<String> = dataStore.data
-        .catch {
-            if(this is Exception){
-                logger.info("${this.message}", "getUserType")
+    override val getUserType: Flow<String> = dataStore.data
+        .catch { e ->
+            if (e is Exception) {
+                logger.info(e.message ?: "unknown", "getUserType")
                 emit(emptyPreferences())
             }
-        }.map { preference ->
-            preference[PreferencesKey.userType] ?: Constants.UserType.passenger
         }
+        .map { prefs ->
+            prefs[PreferencesKey.userType] ?: Constants.UserType.passenger
+        }
+
+    // ─── Favorites implementation ───────────────────────────────────────────
+
+    override fun getFavoriteStops(): Flow<Set<String>> =
+        dataStore.data
+            .catch { e ->
+                if (e is Exception) {
+                    logger.info(e.message ?: "unknown", "getFavoriteStops")
+                    emit(emptyPreferences())
+                }
+            }
+            .map { prefs ->
+                prefs[PreferencesKey.favoriteStops]?.toSet() ?: emptySet()
+            }
+
+    override suspend fun toggleFavoriteStop(stopNo: String) {
+        dataStore.edit { prefs ->
+            val current = prefs[PreferencesKey.favoriteStops]?.toMutableSet() ?: mutableSetOf()
+            if (current.contains(stopNo)) current.remove(stopNo)
+            else current.add(stopNo)
+            prefs[PreferencesKey.favoriteStops] = current
+            logger.info("Toggled favorite for $stopNo; now = $current", "toggleFavoriteStop")
+        }
+    }
 }

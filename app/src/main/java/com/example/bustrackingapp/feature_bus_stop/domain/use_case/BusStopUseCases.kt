@@ -4,4 +4,5 @@ data class BusStopUseCases(
     val getAllBusStops : GetAllBusStopsUseCase,
     val getNearbyBusStops: GetNearbyBusStopsUseCase,
     val getBusStop : GetBusStopUseCase,
+    val toggleFavorite: ToggleFavoriteUseCase    // ← new
 )

@@ -8,6 +8,7 @@ data class BusStopWithRoutes(
     val stopNo: String,
     val name: String,
     val location: Location,
+    val isFavorite: Boolean = false,    
     val routes: List<BusRoute>,
     val createdAt: String,
     val updatedAt: String
