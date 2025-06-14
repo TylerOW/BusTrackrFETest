@@ -252,12 +252,15 @@ fun NearbyBusStopsList(
         LazyColumn(contentPadding = PaddingValues(8.dp)) {
             items(busStops()) { stop ->
                 BusStopTile(
-                    stopNo   = stop.stopNo,
-                    stopName = stop.name,
-                    onClick  = { onBusStopClick(stop.stopNo) }
+                    stopNo         = stop.stopNo,
+                    stopName       = stop.name,
+                    isFavorite     = false,
+                    onFavoriteClick = {},
+                    onClick        = { onBusStopClick(stop.stopNo) }
                 )
                 Divider(color = NavyBlue300)
             }
         }
     }
 }
+
