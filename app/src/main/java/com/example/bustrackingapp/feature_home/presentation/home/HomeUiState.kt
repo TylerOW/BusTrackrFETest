@@ -54,6 +54,3 @@ data class HomeUiState(
 //    override var errorNearbyBuses : String? by mutableStateOf(null)
 //    override var errorNearbyStops : String? by mutableStateOf(null)
 //}
-
-
-

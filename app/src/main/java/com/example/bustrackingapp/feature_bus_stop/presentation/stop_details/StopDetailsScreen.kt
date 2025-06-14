@@ -31,9 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.bustrackingapp.core.data.local.staticBusStops
 import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
 import com.example.bustrackingapp.core.presentation.components.FieldValue
-import com.example.bustrackingapp.feature_bus_routes.domain.models.BusRouteWithStops
 import com.example.bustrackingapp.feature_bus_routes.presentation.components.BusRouteTile
 import com.example.bustrackingapp.feature_bus_stop.domain.model.BusStopWithRoutes
 import com.example.bustrackingapp.ui.theme.NavyBlue300
@@ -47,28 +47,24 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.example.bustrackingapp.core.data.local.staticBusStops
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopDetailsScreen(
-    stopNo : String,
+    stopNo: String,
     stopDetailsViewModel: StopDetailsViewModel = hiltViewModel(),
-    snackbarState : SnackbarHostState = remember {
-        SnackbarHostState()
-    },
-    onBusRouteClick : (String)->Unit
-){
-    LaunchedEffect(key1 = Unit){
-        stopDetailsViewModel.getBusStopDetails(stopNo,isLoading = true)
+    snackbarState: SnackbarHostState = remember { SnackbarHostState() },
+    onBusRouteClick: (String) -> Unit
+) {
+    LaunchedEffect(Unit) {
+        stopDetailsViewModel.getBusStopDetails(stopNo, isLoading = true)
     }
 
-    LaunchedEffect(key1 = stopDetailsViewModel.uiState.error){
-        if(stopDetailsViewModel.uiState.error!=null){
-            snackbarState.showSnackbar(stopDetailsViewModel.uiState.error!!)
+    LaunchedEffect(stopDetailsViewModel.uiState.error) {
+        stopDetailsViewModel.uiState.error?.let {
+            snackbarState.showSnackbar(it)
         }
     }
 
@@ -76,17 +72,12 @@ fun StopDetailsScreen(
         topBar = {
             val isFav = stopDetailsViewModel.uiState.isFavorite
             TopAppBar(
-                title = {
-                    Text(
-                        "Stop Details",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
+                title = { Text("Stop Details", style = MaterialTheme.typography.headlineSmall) },
                 actions = {
-                    IconButton(onClick = { stopDetailsViewModel.toggleFavorite() }) {
+                    IconButton { stopDetailsViewModel.toggleFavorite() } {
                         Icon(
                             imageVector = if (isFav) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = if (isFav) "Unfavorite stop" else "Favorite stop",
+                            contentDescription = if (isFav) "Unfavorite" else "Favorite",
                             tint = if (isFav) Color.Red else MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -94,120 +85,102 @@ fun StopDetailsScreen(
             )
         },
         snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarState,
-            ){
-                if(stopDetailsViewModel.uiState.error!=null){
-                    Snackbar(
-                        snackbarData = it,
-                        containerColor = Red400,
-                        contentColor = White,
-
-                        )
-                }else{
-                    Snackbar(snackbarData = it)
+            SnackbarHost(it) { data ->
+                if (stopDetailsViewModel.uiState.error != null) {
+                    Snackbar(snackbarData = data, containerColor = Red400, contentColor = White)
+                } else {
+                    Snackbar(snackbarData = data)
                 }
             }
-        },
-
-        ) { paddingValues ->
+        }
+    ) { paddingValues ->
         Box(
-            modifier = Modifier
+            Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
             BusStopDetailsContainer(
                 isLoading = stopDetailsViewModel.uiState.isLoading,
                 isRefreshing = { stopDetailsViewModel.uiState.isRefreshing },
-                busStop = stopDetailsViewModel.uiState.stop,
                 onRefresh = stopDetailsViewModel::getBusStopDetails,
+                busStop = stopDetailsViewModel.uiState.stop,
                 onBusRouteClick = onBusRouteClick
             )
         }
     }
 }
 
-
 @Composable
 fun BusStopDetailsContainer(
-    modifier : Modifier = Modifier,
-    isLoading : Boolean,
-    isRefreshing : ()->Boolean,
-    onRefresh : (routeNo : String ,isLoading : Boolean,isRefreshing : Boolean)->Unit,
-    busStop : BusStopWithRoutes?,
-    onBusRouteClick : (String)->Unit
-){
-    if(isLoading){
-        return CustomLoadingIndicator()
+    modifier: Modifier = Modifier,
+    isLoading: Boolean,
+    isRefreshing: () -> Boolean,
+    onRefresh: (routeNo: String, isLoading: Boolean, isRefreshing: Boolean) -> Unit,
+    busStop: BusStopWithRoutes?,
+    onBusRouteClick: (String) -> Unit
+) {
+    if (isLoading) {
+        CustomLoadingIndicator()
+        return
     }
-    if(busStop==null){
-        return Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ){
+    if (busStop == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Something Went Wrong!")
         }
+        return
     }
 
-    return SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing = isRefreshing()),
-        onRefresh = { onRefresh(busStop.stopNo,false, true) },
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing()),
+        onRefresh = { onRefresh(busStop.stopNo, false, true) }
     ) {
         Column(
-            modifier = modifier
+            modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
-            FieldValue(field = "Stop Name", value = busStop.name )
+            Spacer(Modifier.height(12.dp))
+            FieldValue(field = "Stop Name", value = busStop.name)
+            Spacer(Modifier.height(6.dp))
+            FieldValue(field = "Stop No", value = busStop.stopNo)
+            Spacer(Modifier.height(24.dp))
 
-            Spacer(modifier = Modifier.height(6.dp))
-            FieldValue(field = "Stop No", value = busStop.stopNo )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                "Location:",
-                style = MaterialTheme.typography.titleSmall
-            )
-            Spacer(modifier = Modifier.height(6.dp))
+            // Location section
+            Text("Location:", style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.height(6.dp))
             StopLocationMap(busStop)
+            Spacer(Modifier.height(24.dp))
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Spacer(modifier = Modifier.height(12.dp))
+            // Routes section
+            Text("Routes:", style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.height(6.dp))
             Column {
                 busStop.routes.forEach { route ->
                     BusRouteTile(
                         routeNo = route.routeNo,
                         routeName = route.name,
-                        onClick = {
-                            onBusRouteClick(route.routeNo)
-                        }
+                        onClick = { onBusRouteClick(route.routeNo) }
                     )
                     Divider(color = NavyBlue300)
                 }
             }
-
-
+            Spacer(Modifier.height(12.dp))
         }
     }
-
 }
 
 @Composable
 private fun StopLocationMap(busStop: BusStopWithRoutes) {
     val latLng = busStop.correctedLatLng()
     val cameraPositionState = rememberCameraPositionState()
-    LaunchedEffect(Unit) {
+
+    LaunchedEffect(latLng) {
         cameraPositionState.move(
-            CameraUpdateFactory.newLatLngZoom(
-                latLng,
-                16f
-            )
+            CameraUpdateFactory.newLatLngZoom(latLng, 16f)
         )
     }
+
     GoogleMap(
         modifier = Modifier
             .fillMaxWidth()
@@ -223,6 +196,10 @@ private fun StopLocationMap(busStop: BusStopWithRoutes) {
     }
 }
 
+/** 
+ * First tries to look up a hardcoded lat/lng from our static list, 
+ * otherwise swaps coordinates if they look inverted. 
+ */
 private fun BusStopWithRoutes.correctedLatLng(): LatLng {
     staticBusStops.find { it.stopNo == stopNo }?.let {
         return LatLng(it.lat, it.lng)
