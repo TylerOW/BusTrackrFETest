@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,9 +32,17 @@ class StopDetailsViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     init {
-//        viewModelScope.launch {
-//            getBusRouteDetails("910_UP",isLoading = true)
-//        }
+        // Observe favorites so the UI updates when they change
+        viewModelScope.launch {
+            favoriteStops.collect { favs ->
+                uiState.stop?.stopNo?.let { no ->
+                    val fav = favs.contains(no)
+                    if (uiState.isFavorite != fav) {
+                        uiState = uiState.copy(isFavorite = fav)
+                    }
+                }
+            }
+        }
     }
 
     fun getBusStopDetails(stopNo : String, isLoading : Boolean = false, isRefreshing : Boolean = false){
