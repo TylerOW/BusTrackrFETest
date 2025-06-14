@@ -26,7 +26,8 @@ fun BusStopTile(
     stopName: String,
     isFavorite: Boolean,
     onFavoriteClick: (String) -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    showFavoriteIcon: Boolean = true
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -61,16 +62,18 @@ fun BusStopTile(
             )
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        if (showFavoriteIcon) {
+            Spacer(modifier = Modifier.width(8.dp))
 
-        Icon(
-            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-            contentDescription = if (isFavorite) "Unfavorite stop" else "Favorite stop",
-            tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .size(24.dp)
-                .clickable { onFavoriteClick(stopNo) }
-        )
+            Icon(
+                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                contentDescription = if (isFavorite) "Unfavorite stop" else "Favorite stop",
+                tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { onFavoriteClick(stopNo) }
+            )
+        }
     }
 }
 
