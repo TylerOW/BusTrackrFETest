@@ -75,7 +75,7 @@ class UserPrefsRepositoryImpl @Inject constructor(
                 }
             }
             .map { prefs ->
-                prefs[PreferencesKey.favoriteStops]?.toSet() ?: emptySet()
+                prefs[PreferencesKey.favoriteStops] ?: emptySet()
             }
 
     override suspend fun toggleFavoriteStop(stopNo: String) {
