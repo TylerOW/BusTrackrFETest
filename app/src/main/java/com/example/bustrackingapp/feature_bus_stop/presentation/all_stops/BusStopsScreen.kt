@@ -19,8 +19,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import kotlin.collections.emptySet
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import kotlin.collections.emptySet
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,12 +45,13 @@ fun BusStopsScreen(
 ) {
     val logger = LoggerUtil(c = "BusStopsScreen")
 
-    // collect favorites from ViewModel
-     val favorites by busStopsViewModel.favoriteStops.collectAsState(initial = emptySet())
+    // collect UI state and favorites from ViewModel
+    val uiState by busStopsViewModel.uiState.collectAsState()
+    val favorites by busStopsViewModel.favoriteStops.collectAsState(initial = emptySet())
 
-    LaunchedEffect(key1 = busStopsViewModel.uiState.error) {
+    LaunchedEffect(key1 = uiState.error) {
         logger.info("Show Snackbar")
-        busStopsViewModel.uiState.error?.let { snackbarState.showSnackbar(it) }
+        uiState.error?.let { snackbarState.showSnackbar(it) }
     }
 
     Scaffold(
@@ -65,8 +67,8 @@ fun BusStopsScreen(
             SnackbarHost(hostState = snackbarState) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = if (busStopsViewModel.uiState.error != null) Red400 else MaterialTheme.colorScheme.surface,
-                    contentColor = if (busStopsViewModel.uiState.error != null) White else MaterialTheme.colorScheme.onSurface
+                    containerColor = if (uiState.error != null) Red400 else MaterialTheme.colorScheme.surface,
+                    contentColor = if (uiState.error != null) White else MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -77,9 +79,9 @@ fun BusStopsScreen(
                 .fillMaxSize()
         ) {
                BusStopList(
-      busStops         = busStopsViewModel.uiState.busStops,
-      isLoading        = busStopsViewModel.uiState.isLoading,
-      isRefreshing     = busStopsViewModel.uiState.isRefreshing,
+      busStops         = uiState.busStops,
+      isLoading        = uiState.isLoading,
+      isRefreshing     = uiState.isRefreshing,
       onRefresh        = busStopsViewModel::getAllBusStops,
       favorites        = favorites,
       onFavoriteClick  = busStopsViewModel::toggleFavorite,
@@ -136,3 +138,4 @@ private fun BusStopList(
         }
     }
 }
+

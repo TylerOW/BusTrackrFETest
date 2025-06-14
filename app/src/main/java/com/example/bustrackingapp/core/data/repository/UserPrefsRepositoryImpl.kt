@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.example.bustrackingapp.core.domain.repository.UserPrefsRepository
 import com.example.bustrackingapp.core.util.Constants
 import com.example.bustrackingapp.core.util.LoggerUtil
@@ -23,7 +24,8 @@ class UserPrefsRepositoryImpl @Inject constructor(
     private object PreferencesKey {
         val userToken     = stringPreferencesKey("user_token")
         val userType      = stringPreferencesKey("user_type")
-        val favoriteStops = stringPreferencesKey("favorite_stops")  // <— new
+        // store favorites as a string set in DataStore
+        val favoriteStops = stringSetPreferencesKey("favorite_stops")
     }
 
     override suspend fun updateToken(token: String?) {
@@ -73,7 +75,7 @@ class UserPrefsRepositoryImpl @Inject constructor(
                 }
             }
             .map { prefs ->
-                prefs[PreferencesKey.favoriteStops]?.toSet() ?: emptySet()
+                prefs[PreferencesKey.favoriteStops] ?: emptySet()
             }
 
     override suspend fun toggleFavoriteStop(stopNo: String) {
