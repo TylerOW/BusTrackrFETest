@@ -34,6 +34,7 @@ BackEnd - https://github.com/deepak252/Bus-Tracking-Backend
   
 **8. User Profile Management:**
 - Users can check their profiles within the app.
+- Favorited bus stops are listed on the profile screen for quick access.
   
 **9. Interactive Maps:**
 - The app utilizes interactive maps to display bus routes, stops, and real-time bus locations.
