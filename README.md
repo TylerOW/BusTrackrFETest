@@ -21,15 +21,18 @@ BackEnd - https://github.com/deepak252/Bus-Tracking-Backend
 - The app retrieves and displays a list of available bus routes and associated stops from the backend database.
 - Users can search for specific routes, view route details, and select their desired bus stops.
 
-**5. Estimated Arrival Times:**
+**5. Favorite Bus Stops:**
+- Mark frequently used stops as favorites for quick access across the app.
+
+**6. Estimated Arrival Times:**
 - The app calculates and displays estimated arrival times for buses at designated stops.
 - Users can view the estimated arrival times for their selected bus stops to plan their journeys accordingly.
 
-**6. Bus Schedule and Timetable:**
+**7. Bus Schedule and Timetable:**
 - The app retrieves the latest bus schedules and timetables from the backend system.
 - Users can access the schedule information to check the departure and arrival times of buses at different stops.
   
-**7. User Profile Management:**
+**8. User Profile Management:**
 - Users can check their profiles within the app.
   
 **9. Interactive Maps:**
