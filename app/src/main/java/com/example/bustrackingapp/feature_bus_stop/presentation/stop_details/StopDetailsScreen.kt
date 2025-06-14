@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
 import com.example.bustrackingapp.core.presentation.components.FieldValue
-import com.example.bustrackingapp.feature_bus_routes.domain.models.BusRouteWithStops
 import com.example.bustrackingapp.feature_bus_routes.presentation.components.BusRouteTile
 import com.example.bustrackingapp.feature_bus_stop.domain.model.BusStopWithRoutes
 import com.example.bustrackingapp.ui.theme.NavyBlue300
@@ -50,24 +49,21 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StopDetailsScreen(
-    stopNo : String,
+    stopNo: String,
     stopDetailsViewModel: StopDetailsViewModel = hiltViewModel(),
-    snackbarState : SnackbarHostState = remember {
-        SnackbarHostState()
-    },
-    onBusRouteClick : (String)->Unit
-){
-    LaunchedEffect(key1 = Unit){
-        stopDetailsViewModel.getBusStopDetails(stopNo,isLoading = true)
+    snackbarState: SnackbarHostState = remember { SnackbarHostState() },
+    onBusRouteClick: (String) -> Unit
+) {
+    LaunchedEffect(Unit) {
+        stopDetailsViewModel.getBusStopDetails(stopNo, isLoading = true)
     }
 
-    LaunchedEffect(key1 = stopDetailsViewModel.uiState.error){
-        if(stopDetailsViewModel.uiState.error!=null){
-            snackbarState.showSnackbar(stopDetailsViewModel.uiState.error!!)
+    LaunchedEffect(stopDetailsViewModel.uiState.error) {
+        stopDetailsViewModel.uiState.error?.let {
+            snackbarState.showSnackbar(it)
         }
     }
 
@@ -93,23 +89,19 @@ fun StopDetailsScreen(
             )
         },
         snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarState,
-            ){
-                if(stopDetailsViewModel.uiState.error!=null){
+            SnackbarHost(hostState = snackbarState) { data ->
+                if (stopDetailsViewModel.uiState.error != null) {
                     Snackbar(
-                        snackbarData = it,
+                        snackbarData = data,
                         containerColor = Red400,
-                        contentColor = White,
-
-                        )
-                }else{
-                    Snackbar(snackbarData = it)
+                        contentColor = White
+                    )
+                } else {
+                    Snackbar(snackbarData = data)
                 }
             }
-        },
-
-        ) { paddingValues ->
+        }
+    ) { paddingValues ->
         Box(
             modifier = Modifier
                 .padding(paddingValues)
@@ -118,8 +110,8 @@ fun StopDetailsScreen(
             BusStopDetailsContainer(
                 isLoading = stopDetailsViewModel.uiState.isLoading,
                 isRefreshing = { stopDetailsViewModel.uiState.isRefreshing },
-                busStop = stopDetailsViewModel.uiState.stop,
                 onRefresh = stopDetailsViewModel::getBusStopDetails,
+                busStop = stopDetailsViewModel.uiState.stop,
                 onBusRouteClick = onBusRouteClick
             )
         }
@@ -129,28 +121,30 @@ fun StopDetailsScreen(
 
 @Composable
 fun BusStopDetailsContainer(
-    modifier : Modifier = Modifier,
-    isLoading : Boolean,
-    isRefreshing : ()->Boolean,
-    onRefresh : (routeNo : String ,isLoading : Boolean,isRefreshing : Boolean)->Unit,
-    busStop : BusStopWithRoutes?,
-    onBusRouteClick : (String)->Unit
-){
-    if(isLoading){
-        return CustomLoadingIndicator()
+    modifier: Modifier = Modifier,
+    isLoading: Boolean,
+    isRefreshing: () -> Boolean,
+    onRefresh: (routeNo: String, isLoading: Boolean, isRefreshing: Boolean) -> Unit,
+    busStop: BusStopWithRoutes?,
+    onBusRouteClick: (String) -> Unit
+) {
+    if (isLoading) {
+        CustomLoadingIndicator()
+        return
     }
-    if(busStop==null){
-        return Box(
+    if (busStop == null) {
+        Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             Text("Something Went Wrong!")
         }
+        return
     }
 
-    return SwipeRefresh(
+    SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing = isRefreshing()),
-        onRefresh = { onRefresh(busStop.stopNo,false, true) },
+        onRefresh = { onRefresh(busStop.stopNo, false, true) }
     ) {
         Column(
             modifier = modifier
@@ -158,51 +152,53 @@ fun BusStopDetailsContainer(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
-            FieldValue(field = "Stop Name", value = busStop.name )
-
-            Spacer(modifier = Modifier.height(6.dp))
-            FieldValue(field = "Stop No", value = busStop.stopNo )
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(Modifier.height(12.dp))
+            FieldValue(field = "Stop Name", value = busStop.name)
+            Spacer(Modifier.height(6.dp))
+            FieldValue(field = "Stop No", value = busStop.stopNo)
+            Spacer(Modifier.height(24.dp))
 
             Text(
-                "Routes : ",
+                "Location:",
                 style = MaterialTheme.typography.titleSmall
             )
-            Column() {
-                busStop.routes.forEach { route->
+            Spacer(Modifier.height(6.dp))
+            StopLocationMap(busStop)
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                "Routes:",
+                style = MaterialTheme.typography.titleSmall
+            )
+            Column {
+                busStop.routes.forEach { route ->
                     BusRouteTile(
                         routeNo = route.routeNo,
                         routeName = route.name,
-                        onClick = {
-                            onBusRouteClick(route.routeNo)
-                        }
+                        onClick = { onBusRouteClick(route.routeNo) }
                     )
                     Divider(color = NavyBlue300)
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-            StopLocationMap(busStop)
-
-
+            Spacer(Modifier.height(12.dp))
         }
     }
-
 }
 
 @Composable
 private fun StopLocationMap(busStop: BusStopWithRoutes) {
+    // Always use the corrected extension to guard against lat/lng swap
+    val latLng = busStop.correctedLatLng()
     val cameraPositionState = rememberCameraPositionState()
-    LaunchedEffect(Unit) {
+
+    LaunchedEffect(latLng) {
         cameraPositionState.move(
-            CameraUpdateFactory.newLatLngZoom(
-                LatLng(busStop.location.lat, busStop.location.lng),
-                16f
-            )
+            CameraUpdateFactory.newLatLngZoom(latLng, 16f)
         )
     }
+
     GoogleMap(
         modifier = Modifier
             .fillMaxWidth()
@@ -212,8 +208,15 @@ private fun StopLocationMap(busStop: BusStopWithRoutes) {
         uiSettings = MapUiSettings(zoomControlsEnabled = true)
     ) {
         Marker(
-            state = MarkerState(position = LatLng(busStop.location.lat, busStop.location.lng)),
+            state = MarkerState(position = latLng),
             title = busStop.name
         )
     }
+}
+
+// Extension to swap coords if they come in flipped
+private fun BusStopWithRoutes.correctedLatLng(): LatLng {
+    val lat = location.lat
+    val lng = location.lng
+    return if (lat !in -90.0..90.0) LatLng(lng, lat) else LatLng(lat, lng)
 }
