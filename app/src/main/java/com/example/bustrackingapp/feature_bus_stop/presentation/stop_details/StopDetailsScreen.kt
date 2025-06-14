@@ -9,8 +9,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -59,12 +65,22 @@ fun StopDetailsScreen(
 
     Scaffold(
         topBar = {
+            val isFav = stopDetailsViewModel.uiState.isFavorite
             TopAppBar(
                 title = {
                     Text(
                         "Stop Details",
                         style = MaterialTheme.typography.headlineSmall
                     )
+                },
+                actions = {
+                    IconButton(onClick = { stopDetailsViewModel.toggleFavorite() }) {
+                        Icon(
+                            imageVector = if (isFav) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = if (isFav) "Unfavorite stop" else "Favorite stop",
+                            tint = if (isFav) Color.Red else MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 }
             )
         },

@@ -7,6 +7,7 @@ import com.example.bustrackingapp.feature_bus_stop.domain.use_case.BusStopUseCas
 import com.example.bustrackingapp.feature_bus_stop.domain.use_case.GetAllBusStopsUseCase
 import com.example.bustrackingapp.feature_bus_stop.domain.use_case.GetBusStopUseCase
 import com.example.bustrackingapp.feature_bus_stop.domain.use_case.GetNearbyBusStopsUseCase
+import com.example.bustrackingapp.feature_bus_stop.domain.use_case.ToggleFavoriteUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,14 +35,22 @@ object BusStopModule {
 
     @Provides
     @Singleton
+    fun provideToggleFavoriteUseCase(
+        prefs: com.example.bustrackingapp.core.domain.repository.UserPrefsRepository
+    ): ToggleFavoriteUseCase = ToggleFavoriteUseCase(prefs)
+
+    @Provides
+    @Singleton
     fun provideBusStopUseCases(
         getAllBusStopsUseCase: GetAllBusStopsUseCase,
         getNearbyBusStopsUseCase: GetNearbyBusStopsUseCase,
         getBusStopUseCase: GetBusStopUseCase,
+        toggleFavoriteUseCase: ToggleFavoriteUseCase,
     ) : BusStopUseCases = BusStopUseCases(
         getAllBusStops = getAllBusStopsUseCase,
         getNearbyBusStops = getNearbyBusStopsUseCase,
         getBusStop = getBusStopUseCase,
+        toggleFavorite = toggleFavoriteUseCase,
     )
 
 }

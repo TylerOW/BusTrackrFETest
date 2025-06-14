@@ -2,9 +2,8 @@ package com.example.bustrackingapp.feature_bus_stop.presentation.all_stops
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.bustrackingapp.core.domain.repository.UserPrefsRepository
 import com.example.bustrackingapp.core.util.Resource
-import com.example.bustrackingapp.feature_bus_stop.domain.use_case.GetAllBusStopsUseCase
+import com.example.bustrackingapp.feature_bus_stop.domain.use_case.BusStopUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,8 +18,7 @@ data class BusStopsUiState(
 
 @HiltViewModel
 class BusStopsViewModel @Inject constructor(
-  private val busStopsUseCase: GetAllBusStopsUseCase,
-  private val prefs: UserPrefsRepository
+    private val busStopUseCases: BusStopUseCases
 ) : ViewModel() {
 
   // 1) UI state for the list
@@ -28,7 +26,7 @@ class BusStopsViewModel @Inject constructor(
   val uiState: StateFlow<BusStopsUiState> = _uiState
 
   // 2) Expose the favorites Flow straight from DataStore
-  val favoriteStops: Flow<Set<String>> = prefs.getFavoriteStops()
+  val favoriteStops: Flow<Set<String>> = busStopUseCases.toggleFavorite.favorites()
 
   init {
     getAllBusStops(isLoading = true)
@@ -36,7 +34,7 @@ class BusStopsViewModel @Inject constructor(
 
   /** Fetch all stops and mark favorites */
   fun getAllBusStops(isLoading: Boolean = false, isRefreshing: Boolean = false) {
-    busStopsUseCase()
+    busStopUseCases.getAllBusStops()
       .onStart { _uiState.update { it.copy(isLoading = isLoading, error = null) } }
       .onEach { result ->
         _uiState.update { state ->
@@ -69,7 +67,7 @@ class BusStopsViewModel @Inject constructor(
   /** Toggle a stop in favorites, then refresh the list */
   fun toggleFavorite(stopNo: String) {
     viewModelScope.launch {
-      prefs.toggleFavoriteStop(stopNo)
+      busStopUseCases.toggleFavorite(stopNo)
       getAllBusStops(isRefreshing = true)
     }
   }
