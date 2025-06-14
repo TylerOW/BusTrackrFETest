@@ -39,6 +39,14 @@ import com.example.bustrackingapp.feature_bus_stop.domain.model.BusStopWithRoute
 import com.example.bustrackingapp.ui.theme.NavyBlue300
 import com.example.bustrackingapp.ui.theme.Red400
 import com.example.bustrackingapp.ui.theme.White
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
@@ -175,8 +183,37 @@ fun BusStopDetailsContainer(
                 }
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+            StopLocationMap(busStop)
+
 
         }
     }
 
+}
+
+@Composable
+private fun StopLocationMap(busStop: BusStopWithRoutes) {
+    val cameraPositionState = rememberCameraPositionState()
+    LaunchedEffect(Unit) {
+        cameraPositionState.move(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(busStop.location.lat, busStop.location.lng),
+                16f
+            )
+        )
+    }
+    GoogleMap(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        cameraPositionState = cameraPositionState,
+        properties = MapProperties(),
+        uiSettings = MapUiSettings(zoomControlsEnabled = true)
+    ) {
+        Marker(
+            state = MarkerState(position = LatLng(busStop.location.lat, busStop.location.lng)),
+            title = busStop.name
+        )
+    }
 }

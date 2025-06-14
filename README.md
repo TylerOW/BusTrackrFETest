@@ -39,6 +39,7 @@ BackEnd - https://github.com/deepak252/Bus-Tracking-Backend
 **9. Interactive Maps:**
 - The app utilizes interactive maps to display bus routes, stops, and real-time bus locations.
 - Users can zoom in/out, pan the map, and interact with the interface to visualize bus information and plan their trips effectively.
+- Stop details screens show a map pinpointing the selected stop for quick reference.
 
 <br>
 
