@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bustrackingapp.core.presentation.components.CustomElevatedButton
 import com.example.bustrackingapp.core.presentation.components.CustomImage
 import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
+import com.example.bustrackingapp.feature_bus_stop.presentation.components.BusStopTile
 import com.example.bustrackingapp.ui.theme.Gray100
 import com.example.bustrackingapp.ui.theme.NavyBlue500
 import com.example.bustrackingapp.ui.theme.Red400
@@ -95,10 +96,12 @@ fun ProfileScreen(
             ProfileContainer(
                 name = { profileViewModel.uiState.user?.name },
                 email = { profileViewModel.uiState.user?.email },
-                phone = {profileViewModel.uiState.user?.phone },
-                isLoading = {profileViewModel.uiState.isLoading},
-                isRefreshing = {profileViewModel.uiState.isRefreshing},
-                onRefresh = {profileViewModel.getUser(isRefreshing = true)},
+                phone = { profileViewModel.uiState.user?.phone },
+                favorites = { profileViewModel.uiState.favoriteStops },
+                isLoading = { profileViewModel.uiState.isLoading },
+                isRefreshing = { profileViewModel.uiState.isRefreshing },
+                onRefresh = { profileViewModel.getUser(isRefreshing = true) },
+                onFavoriteClick = profileViewModel::toggleFavorite,
                 onLogOutClick = profileViewModel::onLogOutClick,
             )
         }
@@ -112,9 +115,11 @@ private fun ProfileContainer(
     name : ()->String?,
     email : ()->String?,
     phone : ()-> String?,
+    favorites: () -> List<com.example.bustrackingapp.feature_bus_stop.domain.model.BusStopWithRoutes>,
     isLoading : ()-> Boolean,
     isRefreshing : ()-> Boolean,
     onRefresh : ()-> Unit,
+    onFavoriteClick : (String) -> Unit = {},
     onLogOutClick : ()->Unit = {},
 
 ){
@@ -158,6 +163,24 @@ private fun ProfileContainer(
                     )
                 }
             }
+            val favStops = favorites()
+            if (favStops.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    "Favorited Bus Stops",
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                favStops.forEach { stop ->
+                    BusStopTile(
+                        stopNo = stop.stopNo,
+                        stopName = stop.name,
+                        isFavorite = true,
+                        onFavoriteClick = onFavoriteClick,
+                        onClick = {}
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(50.dp))
             CustomElevatedButton(
                 onClick = onLogOutClick,
@@ -175,9 +198,11 @@ private fun ProfileContainerPreview(){
         name = { "Deepak" },
         email = { "deepak@gmail.com" },
         phone = { "9876543210" },
+        favorites = { emptyList() },
         isLoading = {false},
         isRefreshing = {false},
         onRefresh = {},
+        onFavoriteClick = {},
         modifier = Modifier.background(White),
     )
 }

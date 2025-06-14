@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.bustrackingapp.feature_bus.domain.models.BusWithRoute
 import com.example.bustrackingapp.feature_bus_stop.domain.model.BusStopWithRoutes
+import com.example.bustrackingapp.core.data.local.staticBusStops
 
 
 data class HomeUiState(
@@ -27,16 +28,8 @@ data class HomeUiState(
     val notificationMessage  : String?                    = null,
 
     /** Static route points for drawing the map polyline */
-    val routePoints : List<Pair<Double, Double>> = listOf(
-        2.975298 to 101.729192,  // COE
-        2.975777 to 101.728832,  // Murni
-        2.977944 to 101.730570,  // Admin
-        2.976673 to 101.734034,  // Library
-        2.970936 to 101.730657,  // ILMU
-        2.968112 to 101.728183,  // DSS
-        2.965783 to 101.731220,  // Amanah
-        2.962569 to 101.725598   // CIT
-    )
+    val routePoints : List<Pair<Double, Double>> =
+        staticBusStops.map { it.lat to it.lng }
 )
 
 //@Stable
@@ -62,13 +55,5 @@ data class HomeUiState(
 //    override var errorNearbyStops : String? by mutableStateOf(null)
 //}
 
-val routePoints : List<Pair<Double,Double>> = listOf(
-    2.975298 to 101.729192,  // COE
-    2.975777 to 101.728832,  // Murni
-    2.977944 to 101.730570,  // Admin
-    2.976673 to 101.734034,  // Library
-    2.970936 to 101.730657,  // ILMU
-    2.968112 to 101.728183,  // DSS
-    2.965783 to 101.731220,  // Amanah
-    2.962569 to 101.725598   // CIT
-)
+
+
