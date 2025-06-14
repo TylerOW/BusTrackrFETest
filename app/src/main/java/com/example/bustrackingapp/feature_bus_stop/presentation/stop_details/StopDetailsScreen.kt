@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.bustrackingapp.core.data.local.staticBusStops
 import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
 import com.example.bustrackingapp.core.presentation.components.FieldValue
 import com.example.bustrackingapp.feature_bus_routes.presentation.components.BusRouteTile
@@ -71,17 +72,12 @@ fun StopDetailsScreen(
         topBar = {
             val isFav = stopDetailsViewModel.uiState.isFavorite
             TopAppBar(
-                title = {
-                    Text(
-                        "Stop Details",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
+                title = { Text("Stop Details", style = MaterialTheme.typography.headlineSmall) },
                 actions = {
-                    IconButton(onClick = { stopDetailsViewModel.toggleFavorite() }) {
+                    IconButton { stopDetailsViewModel.toggleFavorite() } {
                         Icon(
                             imageVector = if (isFav) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = if (isFav) "Unfavorite stop" else "Favorite stop",
+                            contentDescription = if (isFav) "Unfavorite" else "Favorite",
                             tint = if (isFav) Color.Red else MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -89,13 +85,9 @@ fun StopDetailsScreen(
             )
         },
         snackbarHost = {
-            SnackbarHost(hostState = snackbarState) { data ->
+            SnackbarHost(it) { data ->
                 if (stopDetailsViewModel.uiState.error != null) {
-                    Snackbar(
-                        snackbarData = data,
-                        containerColor = Red400,
-                        contentColor = White
-                    )
+                    Snackbar(snackbarData = data, containerColor = Red400, contentColor = White)
                 } else {
                     Snackbar(snackbarData = data)
                 }
@@ -103,7 +95,7 @@ fun StopDetailsScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier
+            Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
@@ -117,7 +109,6 @@ fun StopDetailsScreen(
         }
     }
 }
-
 
 @Composable
 fun BusStopDetailsContainer(
@@ -133,21 +124,18 @@ fun BusStopDetailsContainer(
         return
     }
     if (busStop == null) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Something Went Wrong!")
         }
         return
     }
 
     SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing = isRefreshing()),
+        state = rememberSwipeRefreshState(isRefreshing()),
         onRefresh = { onRefresh(busStop.stopNo, false, true) }
     ) {
         Column(
-            modifier = modifier
+            modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
@@ -158,19 +146,15 @@ fun BusStopDetailsContainer(
             FieldValue(field = "Stop No", value = busStop.stopNo)
             Spacer(Modifier.height(24.dp))
 
-            Text(
-                "Location:",
-                style = MaterialTheme.typography.titleSmall
-            )
+            // Location section
+            Text("Location:", style = MaterialTheme.typography.titleSmall)
             Spacer(Modifier.height(6.dp))
             StopLocationMap(busStop)
-
             Spacer(Modifier.height(24.dp))
 
-            Text(
-                "Routes:",
-                style = MaterialTheme.typography.titleSmall
-            )
+            // Routes section
+            Text("Routes:", style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.height(6.dp))
             Column {
                 busStop.routes.forEach { route ->
                     BusRouteTile(
@@ -181,7 +165,6 @@ fun BusStopDetailsContainer(
                     Divider(color = NavyBlue300)
                 }
             }
-
             Spacer(Modifier.height(12.dp))
         }
     }
@@ -189,7 +172,6 @@ fun BusStopDetailsContainer(
 
 @Composable
 private fun StopLocationMap(busStop: BusStopWithRoutes) {
-    // Always use the corrected extension to guard against lat/lng swap
     val latLng = busStop.correctedLatLng()
     val cameraPositionState = rememberCameraPositionState()
 
@@ -214,8 +196,14 @@ private fun StopLocationMap(busStop: BusStopWithRoutes) {
     }
 }
 
-// Extension to swap coords if they come in flipped
+/** 
+ * First tries to look up a hardcoded lat/lng from our static list, 
+ * otherwise swaps coordinates if they look inverted. 
+ */
 private fun BusStopWithRoutes.correctedLatLng(): LatLng {
+    staticBusStops.find { it.stopNo == stopNo }?.let {
+        return LatLng(it.lat, it.lng)
+    }
     val lat = location.lat
     val lng = location.lng
     return if (lat !in -90.0..90.0) LatLng(lng, lat) else LatLng(lat, lng)
