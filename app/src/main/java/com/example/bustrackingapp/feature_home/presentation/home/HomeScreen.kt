@@ -258,6 +258,7 @@ fun NearbyBusStopsList(
                     onFavoriteClick = {},
                     onClick        = { onBusStopClick(stop.stopNo) },
                     showFavoriteIcon = false
+
                 )
                 Divider(color = NavyBlue300)
             }
