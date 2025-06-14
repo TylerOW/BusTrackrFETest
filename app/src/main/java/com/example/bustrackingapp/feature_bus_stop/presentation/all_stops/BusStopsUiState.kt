@@ -8,3 +8,4 @@ data class BusStopsUiState(
     val isRefreshing : Boolean = false,
     val error : String?=null
 )
+

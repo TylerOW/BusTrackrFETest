@@ -4,17 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bustrackingapp.core.util.Resource
 import com.example.bustrackingapp.feature_bus_stop.domain.use_case.BusStopUseCases
+import com.example.bustrackingapp.feature_bus_stop.presentation.all_stops.BusStopsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class BusStopsUiState(
-  val busStops: List<BusStopWithRoutes> = emptyList(),
-  val isLoading: Boolean = false,
-  val isRefreshing: Boolean = false,
-  val error: String? = null
-)
 
 @HiltViewModel
 class BusStopsViewModel @Inject constructor(
@@ -72,3 +66,4 @@ class BusStopsViewModel @Inject constructor(
     }
   }
 }
+

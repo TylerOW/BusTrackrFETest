@@ -12,3 +12,4 @@ data class StopDetailsUiState(
     val isRefreshing : Boolean = false,
     val error : String?=null
 )
+
