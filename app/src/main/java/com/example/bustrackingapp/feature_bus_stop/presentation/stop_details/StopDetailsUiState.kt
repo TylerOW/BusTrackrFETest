@@ -7,7 +7,9 @@ import com.example.bustrackingapp.feature_bus_stop.domain.model.BusStopWithRoute
 data class StopDetailsUiState(
     val stop : BusStopWithRoutes?=null,
     val buses : List<BusWithRoute> = emptyList(),
+    val isFavorite: Boolean = false,
     val isLoading : Boolean = false,
     val isRefreshing : Boolean = false,
     val error : String?=null
 )
+
