@@ -5,6 +5,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,11 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bustrackingapp.R
 import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
-import com.example.bustrackingapp.core.presentation.components.RefreshContainer
 import com.example.bustrackingapp.core.util.LoggerUtil
 import com.example.bustrackingapp.feature_bus_routes.domain.models.BusRouteWithStops
 import com.example.bustrackingapp.feature_bus_routes.presentation.components.BusRouteTile
 import com.example.bustrackingapp.feature_bus_routes.presentation.components.ShuttleRouteMap
+import com.example.bustrackingapp.ui.theme.Blue500
 import com.example.bustrackingapp.ui.theme.NavyBlue300
 import com.example.bustrackingapp.ui.theme.Red400
 import com.example.bustrackingapp.ui.theme.White
@@ -111,6 +113,68 @@ fun BusRoutesScreen(
                 onRouteItemClick = onRouteItemClick
             )
         }
+    } 
+}
+
+@Composable
+private fun ShuttleRulesInfo(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.padding(vertical = 8.dp)) {
+        Text(
+            text = "UNITEN INTERNAL SHUTTLE SERVICE (Bus Routes ONLY)",
+            style = MaterialTheme.typography.titleMedium,
+            color = Blue500
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Operating Hours:",
+            style = MaterialTheme.typography.labelLarge
+        )
+        Text(
+            text = "07:30 – 22:30 (Monday - Friday)",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Full Route:",
+            style = MaterialTheme.typography.labelLarge
+        )
+        Text(
+            text = "ATM/LIBRARY → ADMIN → MURNI → BW → AMANAH → DSS → ILMU → COE → ATM/LIBRARY",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Complete Departure Times:",
+            style = MaterialTheme.typography.labelLarge
+        )
+        Text(
+            text = "07:30, 08:00, 08:30, 09:00, 09:30, 10:00, 10:30, 11:00, 11:30, 12:00,\n" +
+                    "12:30, 13:00, 13:30, 14:00, 14:30, 15:00, 15:30, 16:00, 16:30, 17:00,\n" +
+                    "17:30, 18:00, 18:30, 19:00, 20:00, 20:30, 21:00, 21:30, 22:00, 22:30\n" +
+                    "(Departure at 19:30 intentionally excluded)",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Shuttle departs every 30 minutes, excluding:",
+            style = MaterialTheme.typography.labelLarge
+        )
+        Text(
+            text = "• 19:30 – 20:00 (Maghrib Prayer)",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Text(
+            text = "• 12:30 – 14:30 (Friday Prayer)",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Text(
+            text = "• The shuttle service is free of charge.",
+            style = MaterialTheme.typography.bodySmall
+        )
+        Text(
+            text = "• No shuttle service during semester breaks.",
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
 
@@ -127,39 +191,35 @@ private fun BusRouteList(
     }
 
     Column {
-        ShuttleRouteMap(modifier = Modifier.padding(bottom = 8.dp))
+        ShuttleRulesInfo(modifier = Modifier.padding(horizontal = 8.dp))
+        ShuttleRouteMap(
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .align(Alignment.CenterHorizontally)
+        )
 
-        if(busRoutes().isEmpty())
-            RefreshContainer(
-                modifier = Modifier.fillMaxHeight(0.4f),
-                message = "No Bus Routes Found!",
-                onRefresh = { onRefresh(false, true) }
-            )
-        else
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing = isRefreshing()),
-                onRefresh = {onRefresh(false, true)},
-            ) {
-                LazyColumn(
-                    content = {
-                        itemsIndexed(busRoutes()){ index,item->
-                            if(index==0){
-                                Divider(color = NavyBlue300)
-                            }
-                            BusRouteTile(
-                                routeNo = item.routeNo,
-                                routeName = item.name,
-                                totalStops = item.stops.size,
-                                onClick = {
-                                    onRouteItemClick(item.routeNo)
-                                }
-                            )
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing = isRefreshing()),
+            onRefresh = { onRefresh(false, true) },
+        ) {
+            LazyColumn(
+                content = {
+                    itemsIndexed(busRoutes()) { index, item ->
+                        if (index == 0) {
                             Divider(color = NavyBlue300)
                         }
-                    },
-                    contentPadding = PaddingValues(8.dp)
-                )
-            }
+                        BusRouteTile(
+                            routeNo = item.routeNo,
+                            routeName = item.name,
+                            totalStops = item.stops.size,
+                            onClick = { onRouteItemClick(item.routeNo) }
+                        )
+                        Divider(color = NavyBlue300)
+                    }
+                },
+                contentPadding = PaddingValues(8.dp)
+            )
+        }
     }
 
 }
