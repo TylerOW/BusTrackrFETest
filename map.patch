@@ -1,0 +1,531 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/app/src/main/java/com/example/bustrackingapp/feature_bus_routes/presentation/bus_routes/BusRoutesScreen.kt b/app/src/main/java/com/example/bustrackingapp/feature_bus_routes/presentation/bus_routes/BusRoutesScreen.kt
+index c29996095800857dd54bfabfaed662bbbe0240fa..dd0de3cfb4b707de19f555f862a1d680341627e8 100644
+--- a/app/src/main/java/com/example/bustrackingapp/feature_bus_routes/presentation/bus_routes/BusRoutesScreen.kt
++++ b/app/src/main/java/com/example/bustrackingapp/feature_bus_routes/presentation/bus_routes/BusRoutesScreen.kt
+@@ -1,165 +1,234 @@
+ package com.example.bustrackingapp.feature_bus_routes.presentation.bus_routes
+ 
+ import androidx.compose.foundation.clickable
+ import androidx.compose.foundation.interaction.MutableInteractionSource
+ import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.PaddingValues
++import androidx.compose.foundation.layout.Spacer
++import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.fillMaxHeight
+ import androidx.compose.foundation.layout.fillMaxSize
++import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.lazy.LazyColumn
+ import androidx.compose.foundation.lazy.itemsIndexed
+ import androidx.compose.material3.Divider
+ import androidx.compose.material3.ExperimentalMaterial3Api
+-import androidx.compose.material3.Icon
+ import androidx.compose.material3.MaterialTheme
+ import androidx.compose.material3.Scaffold
+ import androidx.compose.material3.Snackbar
+ import androidx.compose.material3.SnackbarHost
+ import androidx.compose.material3.SnackbarHostState
+ import androidx.compose.material3.Text
+ import androidx.compose.material3.TopAppBar
+ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.LaunchedEffect
+ import androidx.compose.runtime.remember
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.platform.LocalFocusManager
+ import androidx.compose.ui.unit.dp
+ import androidx.hilt.navigation.compose.hiltViewModel
+ import com.example.bustrackingapp.R
+ import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
+-import com.example.bustrackingapp.core.presentation.components.RefreshContainer
+ import com.example.bustrackingapp.core.util.LoggerUtil
+ import com.example.bustrackingapp.feature_bus_routes.domain.models.BusRouteWithStops
+ import com.example.bustrackingapp.feature_bus_routes.presentation.components.BusRouteTile
+-import com.example.bustrackingapp.feature_bus_routes.presentation.components.ShuttleRouteMap
++import androidx.compose.foundation.Image
++import androidx.compose.ui.layout.ContentScale
++import androidx.compose.ui.res.painterResource
++import com.example.bustrackingapp.ui.theme.Blue500
+ import com.example.bustrackingapp.ui.theme.NavyBlue300
+ import com.example.bustrackingapp.ui.theme.Red400
+ import com.example.bustrackingapp.ui.theme.White
+ import com.google.accompanist.swiperefresh.SwipeRefresh
+ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+ 
+ 
+ @OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+ fun BusRoutesScreen(
+     busRoutesViewModel : BusRoutesViewModel = hiltViewModel(),
+     snackbarState : SnackbarHostState = remember {
+         SnackbarHostState()
+     },
+     onRouteItemClick : (String)->Unit
+ ){
+     val focusManager = LocalFocusManager.current
+     val logger = LoggerUtil(c = "BusRoutesScreen")
+     LaunchedEffect(key1 = busRoutesViewModel.uiState.error){
+         logger.info("Show Snackbar")
+ 
+         if(busRoutesViewModel.uiState.error!=null){
+             snackbarState.showSnackbar(busRoutesViewModel.uiState.error!!)
+         }
+     }
+ 
+     Scaffold(
+         modifier = Modifier
+             .clickable(
+                 // Remove Ripple Effect
+                 indication = null,
+                 interactionSource = remember { MutableInteractionSource() }
+             ) {
+                 focusManager.clearFocus()
+             },
+         topBar = {
+             TopAppBar(
+                 title = {
+                     Text(
+-                        "Bus Routes",
++                        "UNITEN Internal Shuttle Service",
+                         style = MaterialTheme.typography.headlineSmall
+                     )
+                 }
+             )
+         },
+         snackbarHost = {
+             SnackbarHost(
+                 hostState = snackbarState,
+             ){
+                 if(busRoutesViewModel.uiState.error!=null){
+                     Snackbar(
+                         snackbarData = it,
+                         containerColor = Red400,
+                         contentColor = White,
+ 
+                         )
+                 }else{
+                     Snackbar(snackbarData = it)
+                 }
+             }
+         },
+ 
+         ) { paddingValues ->
+         Box(
+             modifier = Modifier
+                 .padding(paddingValues)
+                 .fillMaxSize()
+         ) {
+             BusRouteList(
+                 busRoutes = { busRoutesViewModel.uiState.busRoutes },
+                 isLoading = { busRoutesViewModel.uiState.isLoading },
+                 isRefreshing = { busRoutesViewModel.uiState.isRefreshing },
+                 onRefresh = busRoutesViewModel::getAllBusRoutes,
+                 onRouteItemClick = onRouteItemClick
+             )
+         }
++    } 
++}
++
++@Composable
++private fun ShuttleRulesInfo(modifier: Modifier = Modifier) {
++    Column(modifier = modifier.padding(vertical = 8.dp)) {
++        Text(
++            text = "UNITEN Internal Shuttle Service",
++            style = MaterialTheme.typography.titleMedium,
++            color = Blue500
++        )
++        Spacer(modifier = Modifier.height(8.dp))
++
++        Text(
++            text = "Service Hours:",
++            style = MaterialTheme.typography.labelLarge
++        )
++        Text(
++            text = "Monday – Friday, 07:30 – 22:30",
++            style = MaterialTheme.typography.bodyMedium
++        )
++        Spacer(modifier = Modifier.height(8.dp))
++
++        Text(
++            text = "Route:",
++            style = MaterialTheme.typography.labelLarge
++        )
++        Text(
++            text = "ATM/Library → Admin → Murni → BW → Amanah → DSS → ILMU → COE → ATM/Library",
++            style = MaterialTheme.typography.bodyMedium
++        )
++        Spacer(modifier = Modifier.height(8.dp))
++
++        Text(
++            text = "Departure:",
++            style = MaterialTheme.typography.labelLarge
++        )
++        Text(
++            text = "Every 30 minutes",
++            style = MaterialTheme.typography.bodyMedium
++        )
++        Spacer(modifier = Modifier.height(8.dp))
++
++        Text(
++            text = "Exceptions (No Service During):",
++            style = MaterialTheme.typography.labelLarge
++        )
++        Text(
++            text = "• 12:30 – 14:30 (Friday Prayer)",
++            style = MaterialTheme.typography.bodySmall
++        )
++        Text(
++            text = "• 19:30 – 20:00 (Maghrib Prayer)",
++            style = MaterialTheme.typography.bodySmall
++        )
++        Text(
++            text = "• Semester Breaks",
++            style = MaterialTheme.typography.bodySmall
++        )
++        Spacer(modifier = Modifier.height(8.dp))
++
++        Text(
++            text = "The shuttle service is completely free of charge.",
++            style = MaterialTheme.typography.bodyMedium
++        )
+     }
+ }
+ 
+ @Composable
+ private fun BusRouteList(
+     busRoutes: () -> List<BusRouteWithStops>,
+     isLoading: () -> Boolean,
+     isRefreshing: () -> Boolean,
+     onRefresh: (isLoading: Boolean, isRefreshing: Boolean) -> Unit,
+     onRouteItemClick: (String) -> Unit
+ ){
+     if(isLoading()){
+         return CustomLoadingIndicator()
+     }
+ 
+     Column {
+-        ShuttleRouteMap(modifier = Modifier.padding(bottom = 8.dp))
++        ShuttleRulesInfo(modifier = Modifier.padding(horizontal = 8.dp))
++        Image(
++            painter = painterResource(id = R.drawable.shuttle_map_done),
++            contentDescription = "UNITEN Shuttle Route Map",
++            modifier = Modifier
++                .fillMaxWidth()
++                .padding(horizontal = 8.dp)
++                .align(Alignment.CenterHorizontally),
++            contentScale = ContentScale.FillWidth
++        )
+ 
+-        if(busRoutes().isEmpty())
+-            RefreshContainer(
+-                modifier = Modifier.fillMaxHeight(0.4f),
+-                message = "No Bus Routes Found!",
+-                onRefresh = { onRefresh(false, true) }
+-            )
+-        else
+-            SwipeRefresh(
+-                state = rememberSwipeRefreshState(isRefreshing = isRefreshing()),
+-                onRefresh = {onRefresh(false, true)},
+-            ) {
+-                LazyColumn(
+-                    content = {
+-                        itemsIndexed(busRoutes()){ index,item->
+-                            if(index==0){
+-                                Divider(color = NavyBlue300)
+-                            }
+-                            BusRouteTile(
+-                                routeNo = item.routeNo,
+-                                routeName = item.name,
+-                                totalStops = item.stops.size,
+-                                onClick = {
+-                                    onRouteItemClick(item.routeNo)
+-                                }
+-                            )
++        SwipeRefresh(
++            state = rememberSwipeRefreshState(isRefreshing = isRefreshing()),
++            onRefresh = { onRefresh(false, true) },
++        ) {
++            LazyColumn(
++                content = {
++                    itemsIndexed(busRoutes()) { index, item ->
++                        if (index == 0) {
+                             Divider(color = NavyBlue300)
+                         }
+-                    },
+-                    contentPadding = PaddingValues(8.dp)
+-                )
+-            }
++                        BusRouteTile(
++                            routeNo = item.routeNo,
++                            routeName = item.name,
++                            totalStops = item.stops.size,
++                            onClick = { onRouteItemClick(item.routeNo) }
++                        )
++                        Divider(color = NavyBlue300)
++                    }
++                },
++                contentPadding = PaddingValues(8.dp)
++            )
++        }
+     }
+ 
+ }
+\ No newline at end of file
+diff --git a/app/src/main/java/com/example/bustrackingapp/feature_bus_routes/presentation/components/ShuttleRouteMap.kt b/app/src/main/java/com/example/bustrackingapp/feature_bus_routes/presentation/components/ShuttleRouteMap.kt
+deleted file mode 100644
+index daba0c8fc1e21615a30397fce801f06caf57d124..0000000000000000000000000000000000000000
+--- a/app/src/main/java/com/example/bustrackingapp/feature_bus_routes/presentation/components/ShuttleRouteMap.kt
++++ /dev/null
+@@ -1,70 +0,0 @@
+-package com.example.bustrackingapp.feature_bus_routes.presentation.components
+-
+-import androidx.compose.foundation.layout.fillMaxWidth
+-import androidx.compose.foundation.layout.height
+-import androidx.compose.runtime.Composable
+-import androidx.compose.runtime.LaunchedEffect
+-import androidx.compose.runtime.mutableStateOf
+-import androidx.compose.runtime.remember
+-import androidx.compose.ui.Modifier
+-import androidx.compose.ui.graphics.Color
+-import androidx.compose.ui.unit.dp
+-import com.google.android.gms.maps.CameraUpdateFactory
+-import com.google.android.gms.maps.model.LatLng
+-import com.google.maps.android.compose.GoogleMap
+-import com.google.maps.android.compose.MapProperties
+-import com.google.maps.android.compose.MapUiSettings
+-import com.google.maps.android.compose.Marker
+-import com.google.maps.android.compose.MarkerState
+-import com.google.maps.android.compose.Polyline
+-import com.google.maps.android.compose.rememberCameraPositionState
+-
+-/**
+- * Map showing the full UNITEN shuttle route using Google Maps Compose.
+- * Replace [simulatedBusLocation] with real data when available.
+- */
+-@Composable
+-fun ShuttleRouteMap(modifier: Modifier = Modifier) {
+-    // Coordinates defining the fixed shuttle route in order
+-    val routePoints = remember {
+-        listOf(
+-            LatLng(2.976673, 101.734034), // ATM/Library
+-            LatLng(2.977944, 101.730570), // Admin Building
+-            LatLng(2.975777, 101.728832), // Murni Hostel
+-            LatLng(2.962569, 101.725598), // BW
+-            LatLng(2.965783, 101.731220), // Amanah Hostel
+-            LatLng(2.968112, 101.728183), // DSS
+-            LatLng(2.970936, 101.730657), // ILMU Hostel
+-            LatLng(2.975298, 101.729192), // COE
+-            LatLng(2.976673, 101.734034)  // ATM/Library
+-        )
+-    }
+-
+-    val cameraPositionState = rememberCameraPositionState()
+-    val simulatedBusLocation = remember { mutableStateOf(routePoints.last()) }
+-
+-    LaunchedEffect(Unit) {
+-        cameraPositionState.move(
+-            CameraUpdateFactory.newLatLngZoom(routePoints.first(), 15f)
+-        )
+-    }
+-
+-    GoogleMap(
+-        modifier = modifier
+-            .fillMaxWidth()
+-            .height(250.dp),
+-        cameraPositionState = cameraPositionState,
+-        properties = MapProperties(),
+-        uiSettings = MapUiSettings(zoomControlsEnabled = true)
+-    ) {
+-        Polyline(points = routePoints, color = Color.Blue, width = 6f)
+-
+-        // Markers for each stop
+-        routePoints.dropLast(1).forEach { point ->
+-            Marker(state = MarkerState(position = point))
+-        }
+-
+-        // Simulated bus marker (replace with real-time updates)
+-        Marker(state = MarkerState(simulatedBusLocation.value), title = "Bus")
+-    }
+-}
+diff --git a/app/src/main/java/com/example/bustrackingapp/feature_bus_stop/presentation/stop_details/StopDetailsScreen.kt b/app/src/main/java/com/example/bustrackingapp/feature_bus_stop/presentation/stop_details/StopDetailsScreen.kt
+index 7af4df7ee57e1105300ff69f137d7f4f641b1db5..ae3f4c7619a362ebfaf5309a378c86dc3e1e47b7 100644
+--- a/app/src/main/java/com/example/bustrackingapp/feature_bus_stop/presentation/stop_details/StopDetailsScreen.kt
++++ b/app/src/main/java/com/example/bustrackingapp/feature_bus_stop/presentation/stop_details/StopDetailsScreen.kt
+@@ -4,69 +4,67 @@ import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.Column
+ import androidx.compose.foundation.layout.Spacer
+ import androidx.compose.foundation.layout.fillMaxSize
+ import androidx.compose.foundation.layout.fillMaxWidth
+ import androidx.compose.foundation.layout.height
+ import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.rememberScrollState
+ import androidx.compose.foundation.verticalScroll
+ import androidx.compose.material.icons.Icons
+ import androidx.compose.material.icons.filled.Favorite
+ import androidx.compose.material.icons.outlined.FavoriteBorder
+ import androidx.compose.material3.Divider
+ import androidx.compose.material3.Icon
+ import androidx.compose.material3.IconButton
+ import androidx.compose.material3.ExperimentalMaterial3Api
+ import androidx.compose.material3.MaterialTheme
+ import androidx.compose.ui.graphics.Color
+ import androidx.compose.material3.Scaffold
+ import androidx.compose.material3.Snackbar
+ import androidx.compose.material3.SnackbarHost
+ import androidx.compose.material3.SnackbarHostState
+ import androidx.compose.material3.Text
+ import androidx.compose.material3.TopAppBar
+ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.LaunchedEffect
+-import androidx.compose.runtime.mutableStateOf
+ import androidx.compose.runtime.remember
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.unit.dp
+ import androidx.hilt.navigation.compose.hiltViewModel
+ import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
+ import com.example.bustrackingapp.core.presentation.components.FieldValue
+ import com.example.bustrackingapp.feature_bus_routes.presentation.components.BusRouteTile
+ import com.example.bustrackingapp.feature_bus_stop.domain.model.BusStopWithRoutes
+ import com.example.bustrackingapp.ui.theme.NavyBlue300
+ import com.example.bustrackingapp.ui.theme.Red400
+ import com.example.bustrackingapp.ui.theme.White
+ import com.google.android.gms.maps.CameraUpdateFactory
+ import com.google.android.gms.maps.model.LatLng
+ import com.google.maps.android.compose.GoogleMap
+ import com.google.maps.android.compose.MapProperties
+ import com.google.maps.android.compose.MapUiSettings
+-import com.google.maps.android.compose.Polyline
+ import com.google.maps.android.compose.Marker
+ import com.google.maps.android.compose.MarkerState
+ import com.google.maps.android.compose.rememberCameraPositionState
+ import com.google.accompanist.swiperefresh.SwipeRefresh
+ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+ 
+ @OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+ fun StopDetailsScreen(
+     stopNo: String,
+     stopDetailsViewModel: StopDetailsViewModel = hiltViewModel(),
+     snackbarState: SnackbarHostState = remember { SnackbarHostState() },
+     onBusRouteClick: (String) -> Unit
+ ) {
+     LaunchedEffect(Unit) {
+         stopDetailsViewModel.getBusStopDetails(stopNo, isLoading = true)
+     }
+ 
+     LaunchedEffect(stopDetailsViewModel.uiState.error) {
+         stopDetailsViewModel.uiState.error?.let {
+             snackbarState.showSnackbar(it)
+         }
+     }
+ 
+     Scaffold(
+@@ -169,88 +167,59 @@ fun BusStopDetailsContainer(
+ 
+             Spacer(Modifier.height(24.dp))
+ 
+             Column {
+                 busStop.routes.forEach { route ->
+                     BusRouteTile(
+                         routeNo = route.routeNo,
+                         routeName = route.name,
+                         onClick = { onBusRouteClick(route.routeNo) }
+                     )
+                     Divider(color = NavyBlue300)
+                 }
+             }
+ 
+             Spacer(Modifier.height(12.dp))
+         }
+     }
+ }
+ 
+ @Composable
+ private fun StopLocationMap(busStop: BusStopWithRoutes) {
+     // Always use the corrected extension to guard against lat/lng swap
+     val latLng = busStop.correctedLatLng()
+     val cameraPositionState = rememberCameraPositionState()
+ 
+-    // Polyline of the shuttle route around campus
+-    val routePoints = remember {
+-        listOf(
+-            LatLng(2.976673, 101.734034), // ATM/Library
+-            LatLng(2.977944, 101.730570), // Admin Building
+-            LatLng(2.975777, 101.728832), // Murni Hostel
+-            LatLng(2.962569, 101.725598), // BW
+-            LatLng(2.965783, 101.731220), // Amanah Hostel
+-            LatLng(2.968112, 101.728183), // DSS
+-            LatLng(2.970936, 101.730657), // ILMU Hostel
+-            LatLng(2.975298, 101.729192), // COE
+-            LatLng(2.976673, 101.734034)  // ATM/Library
+-        )
+-    }
+-
+-    // Placeholder for live bus location updates
+-    val simulatedBusLocation = remember { mutableStateOf(LatLng(2.975298, 101.729192)) }
+ 
+     LaunchedEffect(latLng) {
++        // Center and zoom on the selected stop for a clear view
+         cameraPositionState.move(
+-            CameraUpdateFactory.newLatLngZoom(latLng, 15f)
++            CameraUpdateFactory.newLatLngZoom(latLng, 17f)
+         )
+     }
+ 
+     GoogleMap(
+         modifier = Modifier
+             .fillMaxWidth()
+             .height(200.dp),
+         cameraPositionState = cameraPositionState,
+         properties = MapProperties(),
+         uiSettings = MapUiSettings(zoomControlsEnabled = true)
+     ) {
+-        Polyline(points = routePoints, color = Color.Blue, width = 6f)
+-
+-        // Markers for each stop on the fixed shuttle route
+-        routePoints.forEach { point ->
+-            Marker(state = MarkerState(position = point))
+-        }
+-
+-        // Marker for the selected stop
++        // Only show the currently selected stop on the map
+         Marker(state = MarkerState(position = latLng), title = busStop.name)
+-
+-        // Current bus location marker (replace with real-time data later)
+-        Marker(
+-            state = MarkerState(position = simulatedBusLocation.value),
+-            title = "Bus"
+-        )
+     }
+ }
+ 
+ // Extension to swap coords if they come in flipped
+ private fun BusStopWithRoutes.correctedLatLng(): LatLng {
+     val coords = location.coordinates
+     val rawLatLng = if (coords != null && coords.size >= 2) {
+         val lng = coords[0]
+         val lat = coords[1]
+         lat to lng
+     } else {
+         location.lat to location.lng
+     }
+     val (lat, lng) = rawLatLng
+     return if (lat !in -90.0..90.0) LatLng(lng, lat) else LatLng(lat, lng)
+ }
+diff --git a/app/src/main/res/drawable/shuttle_map_done.png b/app/src/main/res/drawable/shuttle_map_done.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..e5fbdac154836bf44bbc576d22343f9853c96b35
+GIT binary patch
+literal 70
+zcmeAS@N?(olHy`uVBq!ia0vp^j3CUx0wlM}@Gt=>Zci7-kcwN$f6gBW;AdcEV*I~;
+SXSfAWg2B_(&t;ucLK6V9(+`IL
+
+literal 0
+HcmV?d00001
+
+ 
+EOF
+)
