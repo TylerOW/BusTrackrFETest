@@ -34,6 +34,7 @@ import com.example.bustrackingapp.core.presentation.components.RefreshContainer
 import com.example.bustrackingapp.core.util.LoggerUtil
 import com.example.bustrackingapp.feature_bus_routes.domain.models.BusRouteWithStops
 import com.example.bustrackingapp.feature_bus_routes.presentation.components.BusRouteTile
+import com.example.bustrackingapp.feature_bus_routes.presentation.components.ShuttleRouteMap
 import com.example.bustrackingapp.ui.theme.NavyBlue300
 import com.example.bustrackingapp.ui.theme.Red400
 import com.example.bustrackingapp.ui.theme.White
@@ -126,6 +127,8 @@ private fun BusRouteList(
     }
 
     Column {
+        ShuttleRouteMap(modifier = Modifier.padding(bottom = 8.dp))
+
         if(busRoutes().isEmpty())
             RefreshContainer(
                 modifier = Modifier.fillMaxHeight(0.4f),
