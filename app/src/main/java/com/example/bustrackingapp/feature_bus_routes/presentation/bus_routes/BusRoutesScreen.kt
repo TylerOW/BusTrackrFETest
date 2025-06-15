@@ -172,11 +172,12 @@ private fun ShuttleRulesInfo(modifier: Modifier = Modifier) {
             text = "• Semester Breaks",
             style = MaterialTheme.typography.bodySmall
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Text(
             text = "The shuttle service is completely free of charge.",
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
