@@ -167,10 +167,6 @@ fun BusStopDetailsContainer(
 
             Spacer(Modifier.height(24.dp))
 
-            Text(
-                "Routes:",
-                style = MaterialTheme.typography.titleSmall
-            )
             Column {
                 busStop.routes.forEach { route ->
                     BusRouteTile(
@@ -195,7 +191,7 @@ private fun StopLocationMap(busStop: BusStopWithRoutes) {
 
     LaunchedEffect(latLng) {
         cameraPositionState.move(
-            CameraUpdateFactory.newLatLngZoom(latLng, 16f)
+            CameraUpdateFactory.newLatLngZoom(latLng, 15f)
         )
     }
 
