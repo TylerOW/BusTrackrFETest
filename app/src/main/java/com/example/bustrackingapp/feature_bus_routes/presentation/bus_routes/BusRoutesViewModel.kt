@@ -1,12 +1,11 @@
 package com.example.bustrackingapp.feature_bus_routes.presentation.bus_routes
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bustrackingapp.core.util.Resource
-import com.example.bustrackingapp.core.util.ValidationUtil
 import com.example.bustrackingapp.feature_bus_routes.domain.use_case.BusRouteUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
@@ -23,25 +22,6 @@ class BusRoutesViewModel @Inject constructor(
     init {
         getAllBusRoutes(isLoading = true)
     }
-
-    fun onSearchInputChange(newVal : String){
-        uiState = uiState.copy(
-            searchInput = newVal
-        )
-        val searchInput = newVal.trim()
-        uiState = if(searchInput.isNotEmpty()){
-            uiState.copy(
-                busRoutes = uiState.allRoutes.filter {
-                    it.routeNo.contains(searchInput, true)
-                            || it.name.contains(searchInput, true)
-                }
-            )
-        }else{
-            uiState.copy(busRoutes = uiState.allRoutes)
-        }
-
-    }
-
     fun getAllBusRoutes(isLoading : Boolean = false, isRefreshing : Boolean = false){
         if(uiState.isLoading || uiState.isRefreshing){
             return
