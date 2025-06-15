@@ -17,6 +17,7 @@ import com.example.bustrackingapp.core.presentation.navigation.ScreenRoutes
 import com.example.bustrackingapp.core.util.DateTimeUtil
 import com.example.bustrackingapp.core.util.LoggerUtil
 import com.example.bustrackingapp.ui.theme.BusTrackingAppTheme
+import com.example.bustrackingapp.feature_notification.util.PermissionHandler
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,6 +25,9 @@ class MainActivity : ComponentActivity() {
     private val logger = LoggerUtil(c="MainActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Request notification permission on Android 13+
+        PermissionHandler.requestNotificationPermission(this)
 
         setContent {
             BusTrackingAppTheme(darkTheme = true) {
