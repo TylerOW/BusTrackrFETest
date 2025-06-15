@@ -167,10 +167,6 @@ fun BusStopDetailsContainer(
 
             Spacer(Modifier.height(24.dp))
 
-            Text(
-                "Routes:",
-                style = MaterialTheme.typography.titleSmall
-            )
             Column {
                 busStop.routes.forEach { route ->
                     BusRouteTile(
@@ -195,7 +191,7 @@ private fun StopLocationMap(busStop: BusStopWithRoutes) {
 
     LaunchedEffect(latLng) {
         cameraPositionState.move(
-            CameraUpdateFactory.newLatLngZoom(latLng, 16f)
+            CameraUpdateFactory.newLatLngZoom(latLng, 15f)
         )
     }
 
@@ -216,7 +212,14 @@ private fun StopLocationMap(busStop: BusStopWithRoutes) {
 
 // Extension to swap coords if they come in flipped
 private fun BusStopWithRoutes.correctedLatLng(): LatLng {
-    val lat = location.lat
-    val lng = location.lng
+    val coords = location.coordinates
+    val rawLatLng = if (coords != null && coords.size >= 2) {
+        val lng = coords[0]
+        val lat = coords[1]
+        lat to lng
+    } else {
+        location.lat to location.lng
+    }
+    val (lat, lng) = rawLatLng
     return if (lat !in -90.0..90.0) LatLng(lng, lat) else LatLng(lat, lng)
 }
