@@ -24,6 +24,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import io.socket.client.Socket
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import org.json.JSONObject
 import javax.inject.Inject
 
@@ -37,6 +39,10 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val logger = LoggerUtil(c = "HomeViewModel")
+
+    private val favoriteStops = busStopUseCases.toggleFavorite
+        .favorites()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptySet())
 
     /** Convert UI state's static routePoints to a list of LatLngs */
     fun getRouteLatLng(): List<LatLng> =
@@ -88,6 +94,7 @@ class HomeViewModel @Inject constructor(
             val thresholdDistance = busSpeedMps * 300f  // 5 minutes = 300 s
 
             uiState.nearbyBusStops.forEach { stop ->
+                if (!favoriteStops.value.contains(stop.stopNo)) return@forEach
                 val stopLat = stop.location.lat
                 val stopLng = stop.location.lng
                 val dist = FloatArray(1)
