@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,14 +25,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bustrackingapp.R
 import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
-import com.example.bustrackingapp.core.presentation.components.CustomTextField
 import com.example.bustrackingapp.core.presentation.components.RefreshContainer
 import com.example.bustrackingapp.core.util.LoggerUtil
 import com.example.bustrackingapp.feature_bus_routes.domain.models.BusRouteWithStops
@@ -108,18 +103,11 @@ fun BusRoutesScreen(
                 .fillMaxSize()
         ) {
             BusRouteList(
-                busRoutes = {busRoutesViewModel.uiState.busRoutes},
-                searchInput = {busRoutesViewModel.uiState.searchInput},
-                onSearchInputChange = busRoutesViewModel::onSearchInputChange,
-                isLoading = {busRoutesViewModel.uiState.isLoading},
-                isRefreshing = {busRoutesViewModel.uiState.isRefreshing},
+                busRoutes = { busRoutesViewModel.uiState.busRoutes },
+                isLoading = { busRoutesViewModel.uiState.isLoading },
+                isRefreshing = { busRoutesViewModel.uiState.isRefreshing },
                 onRefresh = busRoutesViewModel::getAllBusRoutes,
-                onRouteItemClick = onRouteItemClick,
-                onClearFocus = { focusManager.clearFocus() },
-                onClearSearchClick = {
-                    busRoutesViewModel.onSearchInputChange("")
-                    focusManager.clearFocus()
-                }
+                onRouteItemClick = onRouteItemClick
             )
         }
     }
@@ -127,44 +115,22 @@ fun BusRoutesScreen(
 
 @Composable
 private fun BusRouteList(
-    busRoutes : ()->List<BusRouteWithStops>,
-    searchInput : ()->String,
-    onSearchInputChange : (String)->Unit,
-    isLoading : ()->Boolean,
-    isRefreshing : ()->Boolean,
-    onRefresh : (isLoading : Boolean, isRefreshing : Boolean)->Unit,
-    onRouteItemClick : (String)->Unit,
-    onClearFocus : ()->Unit,
-    onClearSearchClick : ()->Unit
+    busRoutes: () -> List<BusRouteWithStops>,
+    isLoading: () -> Boolean,
+    isRefreshing: () -> Boolean,
+    onRefresh: (isLoading: Boolean, isRefreshing: Boolean) -> Unit,
+    onRouteItemClick: (String) -> Unit
 ){
     if(isLoading()){
         return CustomLoadingIndicator()
     }
 
-    Column() {
-        CustomTextField(
-            value = searchInput,
-            onValueChange = onSearchInputChange,
-            hintText = "Search Route",
-            labelText = "Search Route",
-            onClearFocus = onClearFocus,
-            modifier = Modifier.padding(
-                start = 12.dp, end=12.dp, bottom = 12.dp
-            ),
-            radius = 100,
-            leadingIcon = Icons.Default.Search,
-            trailingIcon = if(searchInput().isNotEmpty())
-                ImageVector.vectorResource(id = R.drawable.baseline_cancel_24)
-                    else null,
-            onTrailingIconClick = onClearSearchClick,
-        )
+    Column {
         if(busRoutes().isEmpty())
             RefreshContainer(
                 modifier = Modifier.fillMaxHeight(0.4f),
                 message = "No Bus Routes Found!",
-                onRefresh = if(searchInput().isEmpty()) {
-                    { onRefresh(false, true) }
-                } else null
+                onRefresh = { onRefresh(false, true) }
             )
         else
             SwipeRefresh(
