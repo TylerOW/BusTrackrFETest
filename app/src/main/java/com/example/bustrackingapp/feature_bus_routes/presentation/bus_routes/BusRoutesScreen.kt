@@ -76,7 +76,7 @@ fun BusRoutesScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Bus Routes",
+                        "UNITEN Internal Shuttle Service",
                         style = MaterialTheme.typography.headlineSmall
                     )
                 }
@@ -120,60 +120,64 @@ fun BusRoutesScreen(
 private fun ShuttleRulesInfo(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(vertical = 8.dp)) {
         Text(
-            text = "UNITEN INTERNAL SHUTTLE SERVICE (Bus Routes ONLY)",
+            text = "UNITEN Internal Shuttle Service",
             style = MaterialTheme.typography.titleMedium,
             color = Blue500
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
-            text = "Operating Hours:",
+            text = "Service Hours:",
             style = MaterialTheme.typography.labelLarge
         )
         Text(
-            text = "07:30 – 22:30 (Monday - Friday)",
+            text = "Monday – Friday, 07:30 – 22:30",
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
-            text = "Full Route:",
+            text = "Route:",
             style = MaterialTheme.typography.labelLarge
         )
         Text(
-            text = "ATM/LIBRARY → ADMIN → MURNI → BW → AMANAH → DSS → ILMU → COE → ATM/LIBRARY",
+            text = "ATM/Library → Admin → Murni → BW → Amanah → DSS → ILMU → COE → ATM/Library",
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
-            text = "Complete Departure Times:",
+            text = "Departure:",
             style = MaterialTheme.typography.labelLarge
         )
         Text(
-            text = "07:30, 08:00, 08:30, 09:00, 09:30, 10:00, 10:30, 11:00, 11:30, 12:00,\n" +
-                    "12:30, 13:00, 13:30, 14:00, 14:30, 15:00, 15:30, 16:00, 16:30, 17:00,\n" +
-                    "17:30, 18:00, 18:30, 19:00, 20:00, 20:30, 21:00, 21:30, 22:00, 22:30\n" +
-                    "(Departure at 19:30 intentionally excluded)",
-            style = MaterialTheme.typography.bodySmall
+            text = "Every 30 minutes",
+            style = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         Text(
-            text = "Shuttle departs every 30 minutes, excluding:",
+            text = "Exceptions (No Service During):",
             style = MaterialTheme.typography.labelLarge
-        )
-        Text(
-            text = "• 19:30 – 20:00 (Maghrib Prayer)",
-            style = MaterialTheme.typography.bodySmall
         )
         Text(
             text = "• 12:30 – 14:30 (Friday Prayer)",
             style = MaterialTheme.typography.bodySmall
         )
         Text(
-            text = "• The shuttle service is free of charge.",
+            text = "• 19:30 – 20:00 (Maghrib Prayer)",
             style = MaterialTheme.typography.bodySmall
         )
         Text(
-            text = "• No shuttle service during semester breaks.",
+            text = "• Semester Breaks",
             style = MaterialTheme.typography.bodySmall
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = "The shuttle service is completely free of charge.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
