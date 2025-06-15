@@ -120,13 +120,6 @@ fun BusRoutesScreen(
 private fun ShuttleRulesInfo(modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(vertical = 8.dp)) {
         Text(
-            text = "UNITEN Internal Shuttle Service",
-            style = MaterialTheme.typography.titleMedium,
-            color = Blue500
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
             text = "Service Hours:",
             style = MaterialTheme.typography.labelLarge
         )
@@ -176,8 +169,7 @@ private fun ShuttleRulesInfo(modifier: Modifier = Modifier) {
 
         Text(
             text = "The shuttle service is completely free of charge.",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
