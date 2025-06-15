@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +43,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -188,9 +190,27 @@ private fun StopLocationMap(busStop: BusStopWithRoutes) {
     val latLng = busStop.correctedLatLng()
     val cameraPositionState = rememberCameraPositionState()
 
+    // Polyline of the shuttle route around campus
+    val routePoints = remember {
+        listOf(
+            LatLng(2.976673, 101.734034), // ATM/Library
+            LatLng(2.977944, 101.730570), // Admin Building
+            LatLng(2.975777, 101.728832), // Murni Hostel
+            LatLng(2.962569, 101.725598), // BW
+            LatLng(2.965783, 101.731220), // Amanah Hostel
+            LatLng(2.968112, 101.728183), // DSS
+            LatLng(2.970936, 101.730657), // ILMU Hostel
+            LatLng(2.975298, 101.729192), // COE
+            LatLng(2.976673, 101.734034)  // ATM/Library
+        )
+    }
+
+    // Placeholder for live bus location updates
+    val simulatedBusLocation = remember { mutableStateOf(LatLng(2.975298, 101.729192)) }
+
     LaunchedEffect(latLng) {
         cameraPositionState.move(
-            CameraUpdateFactory.newLatLngZoom(latLng, 16f)
+            CameraUpdateFactory.newLatLngZoom(latLng, 15f)
         )
     }
 
@@ -202,9 +222,20 @@ private fun StopLocationMap(busStop: BusStopWithRoutes) {
         properties = MapProperties(),
         uiSettings = MapUiSettings(zoomControlsEnabled = true)
     ) {
+        Polyline(points = routePoints, color = Color.Blue, width = 6f)
+
+        // Markers for each stop on the fixed shuttle route
+        routePoints.forEach { point ->
+            Marker(state = MarkerState(position = point))
+        }
+
+        // Marker for the selected stop
+        Marker(state = MarkerState(position = latLng), title = busStop.name)
+
+        // Current bus location marker (replace with real-time data later)
         Marker(
-            state = MarkerState(position = latLng),
-            title = busStop.name
+            state = MarkerState(position = simulatedBusLocation.value),
+            title = "Bus"
         )
     }
 }
