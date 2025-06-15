@@ -1,6 +1,5 @@
 package com.example.bustrackingapp.feature_bus_routes.presentation.bus_routes
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -13,15 +12,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.layout.ContentScale
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.bustrackingapp.R
 import com.example.bustrackingapp.core.presentation.components.CustomLoadingIndicator
 import com.example.bustrackingapp.core.util.LoggerUtil
 import com.example.bustrackingapp.feature_bus_routes.domain.models.BusRouteWithStops
 import com.example.bustrackingapp.feature_bus_routes.presentation.components.BusRouteTile
+import com.example.bustrackingapp.feature_bus_routes.presentation.components.ZoomableShuttleMap
 import com.example.bustrackingapp.ui.theme.Blue500
 import com.example.bustrackingapp.ui.theme.NavyBlue300
 import com.example.bustrackingapp.ui.theme.Red400
@@ -172,14 +169,11 @@ private fun BusRouteList(
 
     Column {
         ShuttleRulesInfo(modifier = Modifier.padding(horizontal = 8.dp))
-        Image(
-            painter = painterResource(id = R.drawable.shuttlemapdone),
-            contentDescription = "UNITEN Shuttle Route Map",
+        ZoomableShuttleMap(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
-                .align(Alignment.CenterHorizontally),
-            contentScale = ContentScale.FillWidth
+                .align(Alignment.CenterHorizontally)
         )
 
         SwipeRefresh(
