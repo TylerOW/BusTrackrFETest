@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +20,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 /**
  * Map showing the full UNITEN shuttle route using Google Maps Compose.
- * Replace [simulatedBusLocation] with real data when available.
+ * Polylines currently connect stops directly; replace with road-based
+ * directions from backend/Google Directions API when available.
  */
 @Composable
 fun ShuttleRouteMap(modifier: Modifier = Modifier) {
@@ -39,10 +39,10 @@ fun ShuttleRouteMap(modifier: Modifier = Modifier) {
             LatLng(2.976673, 101.734034)  // ATM/Library
         )
     }
+    // TODO fetch detailed polyline from backend Directions API so
+    // that the route follows actual roads rather than straight lines
 
     val cameraPositionState = rememberCameraPositionState()
-    val simulatedBusLocation = remember { mutableStateOf(routePoints.last()) }
-
     LaunchedEffect(Unit) {
         cameraPositionState.move(
             CameraUpdateFactory.newLatLngZoom(routePoints.first(), 15f)
@@ -52,19 +52,16 @@ fun ShuttleRouteMap(modifier: Modifier = Modifier) {
     GoogleMap(
         modifier = modifier
             .fillMaxWidth()
-            .height(250.dp),
+            .height(300.dp),
         cameraPositionState = cameraPositionState,
         properties = MapProperties(),
         uiSettings = MapUiSettings(zoomControlsEnabled = true)
     ) {
         Polyline(points = routePoints, color = Color.Blue, width = 6f)
 
-        // Markers for each stop
+        // Marker for each bus stop on the route loop
         routePoints.dropLast(1).forEach { point ->
             Marker(state = MarkerState(position = point))
         }
-
-        // Simulated bus marker (replace with real-time updates)
-        Marker(state = MarkerState(simulatedBusLocation.value), title = "Bus")
     }
 }
